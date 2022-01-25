@@ -1,81 +1,74 @@
 package test.java.com.bridgelabz.CensusAnalyser;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import java.io.IOException;
+import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Iterator;
+import com.bridgelabz.censusanalyzer.CensusAnalyserException.ExceptionType;
+import com.opencsv.bean.CsvToBean;
+import com.opencsv.bean.CsvToBeanBuilder;
 
-public class CensusAnalyserTest {
+public class CensusAnalyser {
 
-	private static final String INDIA_CENSUS_CSV_FILE_PATH = "./src/test/resources/IndianStatesCensus.csv";
-	private static final String WRONG_CSV_FILE_PATH = "./src/main/resources/IndianStatesCensusData.csv";
-	private static final String INCORRECT_FILE_FORMAT = "./src/test/resources/CensusDataInWrongFormat.txt";
-	private static final String CSV_WITH_WRONG_DELIMITER = "./src/test/resources/CensusDataWithWrongDelimiter.csv";
-	private static final String CSV_WITH_INCORRECT_HEADER = "./src/test/resources/CensusDataIncorrectHeader.csv";
-
-	
-	@Test
-	public void givenIndianCensusCSVFile_WhenCorrectPath_ShouldReturnCorrectRecords() {
-		try {
-			CensusAnalyser censusAnalyser = new CensusAnalyser();
-			int numOfRecords = censusAnalyser.loadIndiaCensusData(INDIA_CENSUS_CSV_FILE_PATH);
-			Assert.assertEquals(33, numOfRecords);
-		} 
-		catch (CensusAnalyserException e) {
-		}
-	}
-	@Test
-	public void givenIndiaCensusData_WithWrongFile_ShouldThrowException() {
-		try {
-			CensusAnalyser censusAnalyser = new CensusAnalyser();
-			ExpectedException exceptionRule = ExpectedException.none();
-			exceptionRule.expect(CensusAnalyserException.class);
-			censusAnalyser.loadIndiaCensusData(WRONG_CSV_FILE_PATH);
-		} 
-		catch (CensusAnalyserException e) {
-			Assert.assertEquals(CensusAnalyserException.ExceptionType.CENSUS_FILE_PROBLEM, e.type);
-			e.printStackTrace();
-		}
-	}
-	@Test
-    public void givenIndianCensusCSVFile_WhenCorrectPathButWrongFileFormat_ShouldThrowException() {
-		
-		try {
-			CensusAnalyser censusAnalyser = new CensusAnalyser();
-			ExpectedException exceptionRule = ExpectedException.none();
-			exceptionRule.expect(CensusAnalyserException.class);
-			censusAnalyser.loadIndiaCensusData(INCORRECT_FILE_FORMAT);
-		} 
-		catch (CensusAnalyserException e) {
-			Assert.assertEquals(CensusAnalyserException.ExceptionType.CENSUS_INCORRECT_FILE_FORMAT, e.type);
-			e.printStackTrace();
-		}
+    public int loadIndiaCensusData(String csvFilePath) throws CensusAnalyserException {
+    	
+    	try {
+    		
+    		if(csvFilePath.contains(".txt")) {
+    			throw new CensusAnalyserException("File must be in CSV Format", ExceptionType.CENSUS_INCORRECT_FILE_FORMAT);
+    		}
+    		
+    		Reader reader = Files.newBufferedReader(Paths.get(csvFilePath));
+    		CsvToBeanBuilder<IndiaCensusCSV> csvToBeanBuilder = new CsvToBeanBuilder<IndiaCensusCSV>(reader);
+    		csvToBeanBuilder.withType(IndiaCensusCSV.class);
+    		csvToBeanBuilder.withIgnoreLeadingWhiteSpace(true);
+    		CsvToBean<IndiaCensusCSV> csvToBean = csvToBeanBuilder.build();
+    		Iterator<IndiaCensusCSV> censusCSVIterator = csvToBean.iterator();
+    		
+    		int numberOfEntries = 0;
+    		while(censusCSVIterator.hasNext()) {
+    			numberOfEntries++;
+    			IndiaCensusCSV censusData = censusCSVIterator.next();
+    		}
+    		return numberOfEntries;
+    	}
+    	catch(IOException e) {
+    		throw new CensusAnalyserException(e.getMessage(), ExceptionType.CENSUS_FILE_PROBLEM);
+    	}
+    	catch(RuntimeException e) {
+    		throw new CensusAnalyserException("CSV File Must Have Comma As Delimiter Or Has Incorrect Header", ExceptionType.CENSUS_WRONG_DELIMITER_OR_WRONG_HEADER);
+    	}
     }
-	@Test
-    public void givenIndianCensusCSVFile_WhenCustomDelimiter_ShouldThrowException() {
-		
-		try {
-			CensusAnalyser censusAnalyser = new CensusAnalyser();
-			ExpectedException exceptionRule = ExpectedException.none();
-			exceptionRule.expect(CensusAnalyserException.class);
-			censusAnalyser.loadIndiaCensusData(CSV_WITH_WRONG_DELIMITER);
-		} 
-		catch (CensusAnalyserException e) {
-			Assert.assertEquals(CensusAnalyserException.ExceptionType.CENSUS_WRONG_DELIMITER_OR_WRONG_HEADER, e.type);
-			e.printStackTrace();
-		}
-    }
-	@Test
-    public void givenIndianCensusCSVFile_WhenIncorrectHeader_ShouldThrowException() {
-		
-		try {
-			CensusAnalyser censusAnalyser = new CensusAnalyser();
-			ExpectedException exceptionRule = ExpectedException.none();
-			exceptionRule.expect(CensusAnalyserException.class);
-			censusAnalyser.loadIndiaCensusData(CSV_WITH_INCORRECT_HEADER);
-		} 
-		catch (CensusAnalyserException e) {
-			Assert.assertEquals(CensusAnalyserException.ExceptionType.CENSUS_WRONG_DELIMITER_OR_WRONG_HEADER, e.type);
-			e.printStackTrace();
-		}
-    }
+    
+    public int loadIndianStateCode(String csvFilePath) throws CensusAnalyserException {
+    	
+        try {
+        	
+        	if(csvFilePath.contains(".txt")) {
+    			throw new CensusAnalyserException("File must be in CSV Format", ExceptionType.CENSUS_INCORRECT_FILE_FORMAT);
+    		}
+        	
+        	Reader reader = Files.newBufferedReader(Paths.get(csvFilePath));
+            CsvToBeanBuilder<IndiaStateCSV> csvToBeanBuilder = new CsvToBeanBuilder<IndiaStateCSV>(reader);
+            csvToBeanBuilder.withType(IndiaStateCSV.class);
+            csvToBeanBuilder.withIgnoreLeadingWhiteSpace(true);
+            CsvToBean<IndiaStateCSV> csvToBean = csvToBeanBuilder.build();
+            Iterator<IndiaStateCSV> stateCodesCSVIterator = csvToBean.iterator();
+            
+            int numberOfEntries = 0;
+    		while(stateCodesCSVIterator.hasNext()) {
+    			numberOfEntries++;
+    			IndiaStateCSV censusData = stateCodesCSVIterator.next();
+    		}
+    		return numberOfEntries;
+        } 
+        catch (IOException e) {
+            throw new CensusAnalyserException(e.getMessage(), CensusAnalyserException.ExceptionType.CENSUS_FILE_PROBLEM);
+        } 
+        catch(RuntimeException e) {
+    		throw new CensusAnalyserException("CSV File Must Have Comma As Delimiter Or Has Incorrect Header", ExceptionType.CENSUS_WRONG_DELIMITER_OR_WRONG_HEADER);
+    	}
+    }    
+    
 }
