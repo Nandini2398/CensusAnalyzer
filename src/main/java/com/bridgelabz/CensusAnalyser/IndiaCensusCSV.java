@@ -1,27 +1,28 @@
 package main.java.com.bridgelabz.CensusAnalyser;
 
-	import com.opencsv.bean.CsvBindByName;
-	public class IndiaCensusCSV {
-	    @CsvBindByName(column = "State", required = true)
-	    public String state;
+import com.opencsv.bean.CsvBindByName;
 
-	    @CsvBindByName(column = "Population", required = true)
-	    public int population;
+public class IndiaCensusCSV {
 
-	    @CsvBindByName(column = "AreaInSqKm", required = true)
-	    public int areaInSqKm;
+    @CsvBindByName(column = "State", required = true)
+    public String state;
 
-	    @CsvBindByName(column = "DensityPerSqKm", required = true)
-	    public int densityPerSqKm;
+    @CsvBindByName(column = "Population", required = true)
+    public int population;
 
-	    @Override
-	    public String toString() {
-	        return "IndiaCensusCSV{" +
-	                "State='" + state + '\'' +
-	                ", Population='" + population + '\'' +
-	                ", AreaInSqKm='" + areaInSqKm + '\'' +
-	                ", DensityPerSqKm='" + densityPerSqKm + '\'' +
-	                '}';
-	    }
+    @CsvBindByName(column = "AreaInSqKm", required = true)
+    public int areaInSqKm;
+
+    @CsvBindByName(column = "DensityPerSqKm", required = true)
+    public int densityPerSqKm;
+
+    @Override
+    public String toString() {
+        return "IndiaCensusCSV{" +
+                "State='" + state + '\'' +
+                ", Population='" + population + '\'' +
+                ", AreaInSqKm='" + areaInSqKm + '\'' +
+                ", DensityPerSqKm='" + densityPerSqKm + '\'' +
+                '}';
+    }
 }
-
